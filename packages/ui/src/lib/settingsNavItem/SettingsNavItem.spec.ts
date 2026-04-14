@@ -49,6 +49,15 @@ test('Expect correct role and href', async () => {
   expect(element).toHaveAttribute('href', href);
 });
 
+test('Expect tooltip title attribute on truncated labels', async () => {
+  const title = 'Very long settings section label';
+  renderIt(title, '/test');
+
+  const element = screen.getByLabelText(title);
+  expect(element).toHaveAttribute('title', title);
+  expect(screen.getByText(title)).toHaveAttribute('title', title);
+});
+
 test('Expect selection styling', async () => {
   const title = 'Resources';
   const href = '/test';

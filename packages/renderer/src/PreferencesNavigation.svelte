@@ -108,7 +108,7 @@ onMount(() => {
 </script>
 
 <nav
-  class="z-1 w-leftsidebar min-w-leftsidebar flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 w-leftsidebar min-w-leftsidebar flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px] overflow-x-hidden"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-5">
@@ -118,7 +118,7 @@ onMount(() => {
       </p>
     </div>
   </div>
-  <div class="h-full overflow-y-auto" style="margin-bottom:auto">
+  <div class="h-full overflow-y-auto overflow-x-hidden" style="margin-bottom:auto">
     {#each settingsNavigationItems as navItem, index (index)}
       {#if navItem.visible}
         <SettingsNavItem 

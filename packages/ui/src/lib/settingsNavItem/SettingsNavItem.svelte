@@ -37,9 +37,9 @@ function click(): void {
 }
 </script>
 
-<a class="no-underline" href={href} aria-label={title} onclick={click}>
+<a class="no-underline block w-full" href={href} aria-label={title} onclick={click}>
   <div
-    class="flex w-full pr-1 py-2 justify-between items-center cursor-pointer border-l-[4px]"
+    class="flex box-border w-full pr-1 py-2 justify-between items-center cursor-pointer border-l-[4px]"
     class:pl-3={!child}
     class:pl-[34px]={child}
     class:leading-none={child}
@@ -54,12 +54,12 @@ function click(): void {
     class:hover:bg-[var(--pd-secondary-nav-text-hover-bg)]={!selected}
     class:hover:border-[var(--pd-secondary-nav-text-hover-bg)]={!selected}>
     <span
-      class="group-hover:block flex flex-row gap-x-2 items-center"
+      class="group-hover:block flex flex-row gap-x-2 items-center min-w-0"
       class:capitalize={!child}>
       {#if icon}
           <Icon icon={icon}/>
       {/if}
-      <span>{title}</span>
+      <span class="truncate">{title}</span>
       {#if iconRight && iconRightAlign === 'inline'}
         <Icon icon={iconRight}/>
       {/if}

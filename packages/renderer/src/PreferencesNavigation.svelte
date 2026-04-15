@@ -59,6 +59,39 @@ function measureTitleTextWidth(titleElement: HTMLElement): number {
   return textWidth;
 }
 
+function measureRowNonTitleWidth(rowElement: HTMLElement): number {
+  if (!document.body) {
+    return 0;
+  }
+
+  const measurementRow = rowElement.cloneNode(true) as HTMLElement;
+  const measurementTitle = measurementRow.querySelector<HTMLElement>('[data-settings-nav-title]');
+  if (measurementTitle) {
+    measurementTitle.textContent = '';
+    measurementTitle.style.width = '0';
+    measurementTitle.style.minWidth = '0';
+    measurementTitle.style.maxWidth = '0';
+    measurementTitle.style.padding = '0';
+    measurementTitle.style.margin = '0';
+    measurementTitle.style.border = '0';
+  }
+
+  measurementRow.style.position = 'absolute';
+  measurementRow.style.visibility = 'hidden';
+  measurementRow.style.pointerEvents = 'none';
+  measurementRow.style.left = '-9999px';
+  measurementRow.style.top = '0';
+  measurementRow.style.width = 'max-content';
+  measurementRow.style.minWidth = '0';
+  measurementRow.style.maxWidth = 'none';
+
+  document.body.appendChild(measurementRow);
+  const nonTitleWidth = Math.ceil(measurementRow.getBoundingClientRect().width);
+  measurementRow.remove();
+
+  return nonTitleWidth;
+}
+
 function updateNavigationWidth(): void {
   if (!navigationElement) {
     return;
@@ -83,8 +116,8 @@ function updateNavigationWidth(): void {
     }
 
     const fullTitleWidth = Math.max(titleElement.scrollWidth, measureTitleTextWidth(titleElement));
-    const hiddenTitleWidth = Math.max(0, fullTitleWidth - titleElement.clientWidth);
-    const rowRequiredWidth = Math.ceil(rowElement.clientWidth + hiddenTitleWidth + 8);
+    const otherContentWidth = measureRowNonTitleWidth(rowElement);
+    const rowRequiredWidth = Math.ceil(otherContentWidth + fullTitleWidth + 8);
     if (rowRequiredWidth > requiredWidth) {
       requiredWidth = rowRequiredWidth;
     }

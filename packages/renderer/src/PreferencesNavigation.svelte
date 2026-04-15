@@ -29,36 +29,6 @@ let navigationElement: HTMLElement | undefined = $state();
 let navigationWidthPx: number | undefined = $state();
 const MIN_CONTENT_WIDTH_PX = 80;
 
-function measureTitleTextWidth(titleElement: HTMLElement): number {
-  const titleText = titleElement.textContent ?? '';
-  if (!titleText.trim()) {
-    return titleElement.scrollWidth;
-  }
-
-  if (typeof window.getComputedStyle !== 'function') {
-    return titleElement.scrollWidth;
-  }
-
-  const titleStyle = window.getComputedStyle(titleElement);
-  const measurementElement = document.createElement('span');
-  measurementElement.textContent = titleText;
-  measurementElement.style.position = 'absolute';
-  measurementElement.style.visibility = 'hidden';
-  measurementElement.style.pointerEvents = 'none';
-  measurementElement.style.whiteSpace = 'nowrap';
-  measurementElement.style.font = titleStyle.font;
-  measurementElement.style.fontSize = titleStyle.fontSize;
-  measurementElement.style.fontWeight = titleStyle.fontWeight;
-  measurementElement.style.fontFamily = titleStyle.fontFamily;
-  measurementElement.style.letterSpacing = titleStyle.letterSpacing;
-  measurementElement.style.textTransform = titleStyle.textTransform;
-
-  document.body.appendChild(measurementElement);
-  const textWidth = Math.ceil(measurementElement.getBoundingClientRect().width);
-  measurementElement.remove();
-  return textWidth;
-}
-
 function measureRowNonTitleWidth(rowElement: HTMLElement): number {
   if (!document.body) {
     return 0;
@@ -97,7 +67,10 @@ function updateNavigationWidth(): void {
     return;
   }
 
-  const hasExpandedSections = Object.values(sectionExpanded).some(Boolean);
+  const visibleSectionIds = new Set(configProperties.keys());
+  const hasExpandedSections = Object.entries(sectionExpanded).some(
+    ([sectionId, expanded]) => visibleSectionIds.has(sectionId) && expanded,
+  );
   if (!hasExpandedSections) {
     navigationWidthPx = undefined;
     return;
@@ -115,7 +88,7 @@ function updateNavigationWidth(): void {
       continue;
     }
 
-    const fullTitleWidth = Math.max(titleElement.scrollWidth, measureTitleTextWidth(titleElement));
+    const fullTitleWidth = Math.ceil(titleElement.getBoundingClientRect().width);
     const otherContentWidth = measureRowNonTitleWidth(rowElement);
     const rowRequiredWidth = Math.ceil(otherContentWidth + fullTitleWidth + 8);
     if (rowRequiredWidth > requiredWidth) {
@@ -210,7 +183,7 @@ onMount(() => {
     }
 
     // update config properties
-    configProperties = value.reduce((map, current) => {
+    const nextConfigProperties = value.reduce((map, current) => {
       // filter on default scope
       if (current.scope !== CONFIGURATION_DEFAULT_SCOPE) return map;
 
@@ -226,6 +199,13 @@ onMount(() => {
       }
       return map;
     }, new Map<string, NavItem[]>());
+
+    configProperties = nextConfigProperties;
+
+    // Drop expansion flags for sections no longer present to avoid stale widened width.
+    sectionExpanded = Object.fromEntries(
+      Object.entries(sectionExpanded).filter(([sectionId]) => nextConfigProperties.has(sectionId)),
+    );
 
     scheduleNavigationWidthUpdate();
   });

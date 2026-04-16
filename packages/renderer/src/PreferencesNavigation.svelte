@@ -227,7 +227,7 @@ onMount(() => {
 <nav
   bind:this={navigationElement}
   style:width={navigationWidthPx ? `${navigationWidthPx}px` : undefined}
-  class="z-1 w-leftsidebar min-w-leftsidebar max-w-none shrink-0 flex-col justify-between flex transition-all duration-500 ease-in-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 w-[190px] min-w-[190px] max-w-none shrink-0 flex-col justify-between flex transition-[width] duration-100 ease-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-5">

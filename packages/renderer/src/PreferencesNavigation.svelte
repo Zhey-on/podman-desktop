@@ -90,7 +90,12 @@ function updateNavigationWidth(): void {
       continue;
     }
 
-    const fullTitleWidth = Math.ceil(titleElement.getBoundingClientRect().width);
+    const titleWhiteSpace =
+      typeof window.getComputedStyle === 'function' ? window.getComputedStyle(titleElement).whiteSpace : 'nowrap';
+    const fullTitleWidth =
+      titleWhiteSpace === 'nowrap'
+        ? Math.ceil(Math.max(titleElement.scrollWidth, titleElement.clientWidth))
+        : Math.ceil(titleElement.getBoundingClientRect().width);
     const otherContentWidth = measureRowNonTitleWidth(rowElement);
     const rowRequiredWidth = Math.ceil(otherContentWidth + fullTitleWidth + 8);
     if (rowRequiredWidth > requiredWidth) {

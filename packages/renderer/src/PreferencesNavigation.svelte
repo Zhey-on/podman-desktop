@@ -72,7 +72,9 @@ function updateNavigationWidth(): void {
     ([sectionId, expanded]) => visibleSectionIds.has(sectionId) && expanded,
   );
   if (!hasExpandedSections) {
-    navigationWidthPx = undefined;
+    if (navigationWidthPx !== undefined) {
+      navigationWidthPx = undefined;
+    }
     return;
   }
 
@@ -100,7 +102,10 @@ function updateNavigationWidth(): void {
   // Allow very long labels while keeping a small visible content pane.
   const maxNavigationWidthPx = Math.max(minWidth, viewportWidth - MIN_CONTENT_WIDTH_PX);
 
-  navigationWidthPx = Math.min(Math.max(requiredWidth, minWidth), maxNavigationWidthPx);
+  const nextWidth = Math.min(Math.max(requiredWidth, minWidth), maxNavigationWidthPx);
+  if (navigationWidthPx !== nextWidth) {
+    navigationWidthPx = nextWidth;
+  }
 }
 
 function scheduleNavigationWidthUpdate(): void {
@@ -155,9 +160,10 @@ onMount(() => {
   let resizeObserver: ResizeObserver | undefined;
   if (navigationElement && typeof ResizeObserver !== 'undefined') {
     resizeObserver = new ResizeObserver(() => {
-      updateNavigationWidth();
+      scheduleNavigationWidthUpdate();
     });
-    resizeObserver.observe(navigationElement);
+    const resizeTarget = navigationElement.parentElement ?? navigationElement;
+    resizeObserver.observe(resizeTarget);
   }
 
   if (typeof window.addEventListener === 'function') {

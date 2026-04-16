@@ -29,6 +29,35 @@ let navigationElement: HTMLElement | undefined = $state();
 let navigationWidthPx: number | undefined = $state();
 const MIN_CONTENT_WIDTH_PX = 80;
 
+function measureTitleTextWidth(titleElement: HTMLElement): number {
+  const titleText = titleElement.textContent ?? '';
+  if (!titleText.trim() || !document.body) {
+    return Math.ceil(titleElement.scrollWidth);
+  }
+
+  const titleStyle =
+    typeof window.getComputedStyle === 'function' ? window.getComputedStyle(titleElement) : undefined;
+
+  const measurementElement = document.createElement('span');
+  measurementElement.textContent = titleText;
+  measurementElement.style.position = 'absolute';
+  measurementElement.style.visibility = 'hidden';
+  measurementElement.style.pointerEvents = 'none';
+  measurementElement.style.whiteSpace = 'nowrap';
+  measurementElement.style.font = titleStyle?.font ?? '';
+  measurementElement.style.fontSize = titleStyle?.fontSize ?? '';
+  measurementElement.style.fontWeight = titleStyle?.fontWeight ?? '';
+  measurementElement.style.fontFamily = titleStyle?.fontFamily ?? '';
+  measurementElement.style.letterSpacing = titleStyle?.letterSpacing ?? '';
+  measurementElement.style.textTransform = titleStyle?.textTransform ?? '';
+
+  document.body.appendChild(measurementElement);
+  const textWidth = Math.ceil(measurementElement.getBoundingClientRect().width);
+  measurementElement.remove();
+
+  return textWidth;
+}
+
 function measureRowNonTitleWidth(rowElement: HTMLElement): number {
   if (!document.body) {
     return 0;
@@ -94,8 +123,8 @@ function updateNavigationWidth(): void {
       typeof window.getComputedStyle === 'function' ? window.getComputedStyle(titleElement).whiteSpace : 'nowrap';
     const fullTitleWidth =
       titleWhiteSpace === 'nowrap'
-        ? Math.ceil(Math.max(titleElement.scrollWidth, titleElement.clientWidth))
-        : Math.ceil(titleElement.getBoundingClientRect().width);
+        ? Math.ceil(titleElement.scrollWidth)
+        : Math.ceil(measureTitleTextWidth(titleElement));
     const otherContentWidth = measureRowNonTitleWidth(rowElement);
     const rowRequiredWidth = Math.ceil(otherContentWidth + fullTitleWidth + 8);
     if (rowRequiredWidth > requiredWidth) {
@@ -238,7 +267,7 @@ onMount(() => {
 <nav
   bind:this={navigationElement}
   style:width={navigationWidthPx ? `${navigationWidthPx}px` : undefined}
-  class="z-1 w-[190px] min-w-[190px] max-w-none shrink-0 flex-col justify-between flex transition-[width] duration-100 ease-out bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 w-[190px] min-w-[190px] max-w-none shrink-0 flex-col justify-between flex bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-5">

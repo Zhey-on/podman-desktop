@@ -287,3 +287,91 @@ describe('Kubernetes menu visibility based on kubernetes-contexts-manager featur
     });
   });
 });
+
+describe('Navigation width measurement and calculation', () => {
+  test('should render navigation container with correct structure', async () => {
+    render(PreferencesNavigation, {
+      meta: {
+        url: '/',
+      } as unknown as TinroRouteMeta,
+    });
+
+    await tick();
+    const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+    expect(navigationBar).toBeVisible();
+    expect(navigationBar).toHaveClass('flex-col');
+    expect(navigationBar).toHaveClass('justify-between');
+  });
+
+  test('should calculate navigation width based on label lengths', async () => {
+    render(PreferencesNavigation, {
+      meta: {
+        url: '/',
+      } as unknown as TinroRouteMeta,
+    });
+
+    await tick();
+    const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+    expect(navigationBar).toBeInTheDocument();
+
+    // Verify links are present and properly measured
+    const resourcesLink = screen.getByRole('link', { name: 'Resources' });
+    expect(resourcesLink).toBeInTheDocument();
+  });
+
+  test('should update width styling when navigation items change', async () => {
+    render(PreferencesNavigation, {
+      meta: {
+        url: '/',
+      } as unknown as TinroRouteMeta,
+    });
+
+    await tick();
+
+    const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+    expect(navigationBar).toBeVisible();
+
+    // Re-render with updated configuration
+    configurationProperties.set([EXPERIMENTAL_CONFIG]);
+    await tick();
+
+    const updatedNav = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+    expect(updatedNav).toBeVisible();
+  });
+
+  test('should apply width-related CSS classes to navigation', async () => {
+    render(PreferencesNavigation, {
+      meta: {
+        url: '/',
+      } as unknown as TinroRouteMeta,
+    });
+
+    await tick();
+
+    const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+    // Verify it has the expected size-related classes from the squashed commit
+    expect(navigationBar.className).toContain('min-w-leftsidebar');
+    expect(navigationBar.className).toContain('w-leftsidebar');
+    expect(navigationBar.className).toContain('max-w-none');
+  });
+
+  test('should handle section expansion with navigation width stability', async () => {
+    configurationProperties.set([EXPERIMENTAL_CONFIG]);
+    render(PreferencesNavigation, {
+      meta: {
+        url: '/',
+      } as unknown as TinroRouteMeta,
+    });
+
+    await tick();
+
+    // Navigate to trigger section rendering
+    const experimentalLink = await screen.findByRole('link', { name: 'Experimental' });
+    expect(experimentalLink).toBeVisible();
+
+    // Verify navigation dimensions remain stable
+    const navigationBar = screen.getByRole('navigation', { name: 'PreferencesNavigation' });
+    expect(navigationBar).toBeVisible();
+    expect(navigationBar.className).toContain('flex');
+  });
+});

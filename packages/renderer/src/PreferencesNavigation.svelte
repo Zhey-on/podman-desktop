@@ -35,8 +35,7 @@ function measureTitleTextWidth(titleElement: HTMLElement): number {
     return Math.ceil(titleElement.scrollWidth);
   }
 
-  const titleStyle =
-    typeof window.getComputedStyle === 'function' ? window.getComputedStyle(titleElement) : undefined;
+  const titleStyle = typeof window.getComputedStyle === 'function' ? window.getComputedStyle(titleElement) : undefined;
 
   const measurementElement = document.createElement('span');
   measurementElement.textContent = titleText;
@@ -96,17 +95,6 @@ function updateNavigationWidth(): void {
     return;
   }
 
-  const visibleSectionIds = new Set(configProperties.keys());
-  const hasExpandedSections = Object.entries(sectionExpanded).some(
-    ([sectionId, expanded]) => visibleSectionIds.has(sectionId) && expanded,
-  );
-  if (!hasExpandedSections) {
-    if (navigationWidthPx !== undefined) {
-      navigationWidthPx = undefined;
-    }
-    return;
-  }
-
   const computedStyle =
     typeof window.getComputedStyle === 'function' ? window.getComputedStyle(navigationElement) : undefined;
   const minWidth = Number.parseFloat(computedStyle?.minWidth ?? '') || navigationElement.clientWidth;
@@ -137,15 +125,27 @@ function updateNavigationWidth(): void {
   const maxNavigationWidthPx = Math.max(minWidth, viewportWidth - MIN_CONTENT_WIDTH_PX);
 
   const nextWidth = Math.min(Math.max(requiredWidth, minWidth), maxNavigationWidthPx);
-  if (navigationWidthPx !== nextWidth) {
-    navigationWidthPx = nextWidth;
+  const nextWidthState = nextWidth > minWidth ? nextWidth : undefined;
+  if (navigationWidthPx !== nextWidthState) {
+    navigationWidthPx = nextWidthState;
   }
 }
 
 function scheduleNavigationWidthUpdate(): void {
-  void tick().then(() => {
-    updateNavigationWidth();
-  });
+  void tick()
+    .then(() => {
+      // Measure after next paint so newly-shown items have final layout metrics.
+      if (typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(() => {
+          updateNavigationWidth();
+        });
+      } else {
+        updateNavigationWidth();
+      }
+    })
+    .catch(() => {
+      updateNavigationWidth();
+    });
 }
 
 function updateDockerCompatibility(): void {
@@ -267,7 +267,7 @@ onMount(() => {
 <nav
   bind:this={navigationElement}
   style:width={navigationWidthPx ? `${navigationWidthPx}px` : undefined}
-  class="z-1 w-[190px] min-w-[190px] max-w-none shrink-0 flex-col justify-between flex bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 w-leftsidebar min-w-leftsidebar max-w-none shrink-0 flex-col justify-between flex bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="PreferencesNavigation">
   <div class="flex items-center">
     <div class="pt-4 px-3 mb-5">

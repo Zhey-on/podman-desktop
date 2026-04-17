@@ -55,7 +55,7 @@ test('Expect tooltip title attribute on truncated labels', async () => {
 
   const element = screen.getByLabelText(title);
   expect(element).toHaveAttribute('title', title);
-  expect(screen.getByText(title)).toHaveAttribute('title', title);
+  expect(screen.getByText(title)).not.toHaveAttribute('title');
 });
 
 test('Expect selection styling', async () => {
@@ -175,7 +175,7 @@ describe('iconRight', () => {
     // First icon (left) should be in the fixed-width left icon gutter.
     expect(svgs[0].parentElement).toHaveClass('w-4');
     // Second icon (right) should be in the fixed-width end gutter container.
-    expect(svgs[1].parentElement).toHaveClass('w-8');
+    expect(svgs[1].parentElement).toHaveClass('w-3');
   });
 
   test('iconRight with align inline should be next to title', () => {
@@ -205,6 +205,6 @@ describe('iconRight', () => {
     const svgs = getAllByRole('img', { hidden: true });
     expect(svgs).toHaveLength(1);
     // Icon should be in the fixed-width end gutter container.
-    expect(svgs[0].parentElement).toHaveClass('w-8');
+    expect(svgs[0].parentElement).toHaveClass('w-3');
   });
 });

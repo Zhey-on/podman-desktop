@@ -67,13 +67,12 @@ function click(): void {
         class="block"
         class:truncate={!child}
         class:whitespace-normal={child}
-        class:break-words={child}
-        title={title}>{title}</span>
+        class:break-words={child}>{title}</span>
       {#if iconRight && iconRightAlign === 'inline'}
         <Icon icon={iconRight}/>
       {/if}
     </span>
-    <div class="w-8 shrink-0 flex items-center justify-end">
+    <div class="w-3 shrink-0 flex items-center justify-end">
       {#if section}
         <span class="text-[color:var(--pd-secondary-nav-expander)] pointer-events-none">
           <ChevronExpander expanded={expanded} />

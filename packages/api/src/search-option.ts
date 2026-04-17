@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { type ConfirmationOptions, withConfirmation } from '/@/lib/dialogs/messagebox-utils';
-
-export function withBulkConfirmation(callback: () => unknown, text: string, options?: ConfirmationOptions): void {
-  window
-    .getConfigurationValue('userConfirmation.bulk')
-    .then(confirm => (confirm ? withConfirmation(callback, text, options) : callback()))
-    .catch((err: unknown) => console.error('Error getting configuration value userConfirmation.bulk', err));
+export interface CommandPaletteSearchOption {
+  category: string;
+  text: string;
+  placeholder: string;
 }
